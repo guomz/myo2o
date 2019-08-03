@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guomz.myo2o.dao.UserProductMapDao">
+	
+	<resultMap type="UserProductMap" id="UserProductResultMap">
+		<id column="user_product_id" property="userProductId"/>
+		<result column="point" property="point"/>
+		<result column="create_time" property="createTime"/>
+		<association property="user" column="user_id">
+			<id column="user_id" property="userId"/>
+			<result column="user_name" property="userName"/>
+		</association>
+		<association property="shop" column="shop_id">
+			<id column="shop_id" property="shopId"/>
+			<result column="shop_name" property="shopName"/>
+		</association>
+		<association property="product" column="product_id">
+			<id column="product_id" property="productId"/>
+			<result column="product_name" property="productName"/>
+		</association>
+		<association property="operator" column="operator_id">
+			<id column="operator_id" property="userId"/>
+			<result column="operator_name" property="userName"/>
+		</association>
+	</resultMap>
+	
+	<select id="queryUserProductMapList" resultMap="UserProductResultMap" parameterType="UserProductMap">
+		select
+		upm.user_product_id,
+		upm.point,
+		upm.create_time,
+		u.user_id,
+		u.user_name,
+		s.shop_id,
+		s.shop_name,
+		p.product_id,
+		p.product_name,
+		o.user_id as operator_id,
+		o.user_name as operator_name
+		from
+		tb_user_product_map upm,tb_person_info u,tb_shop s,tb_product p,tb_person_info o
+		<where>
+			upm.user_id=u.user_id
+			and upm.shop_id=s.shop_id
+			and upm.product_id=p.product_id
+			and upm.operator_id=o.user_id
+			<if test="condition.user!=null and condition.user.userId!=null">
+				and upm.user_id=#{condition.user.userId}
+			</if>
+			<if test="condition.shop!=null and condition.shop.shopId!=null">
+				and upm.shop_id=#{condition.shop.shopId}
+			</if>
+			<if test="condition.product!=null and condition.product.productName!=null">
+				and p.product_name like "%"#{condition.product.productName}"%"
+			</if>
+			<if test="condition.user!=null and condition.user.userName!=null">
+				and u.user_name like "%"#{condition.user.userName}"%"
+			</if>
+			<if test="condition.createTime!=null">
+				and upm.create_time>#{condition.createTime}
+			</if>
+		</where>
+		limit #{rowIndex},#{pageSize}
+	</select>
+	
+	<select id="queryUserProductMapCount" resultType="int">
+		select
+		count(*)
+		from
+		tb_user_product_map upm,tb_person_info u,tb_shop s,tb_product p,tb_person_info o
+		<where>
+			upm.user_id=u.user_id
+			and upm.shop_id=s.shop_id
+			and upm.product_id=p.product_id
+			and upm.operator_id=o.user_id
+			<if test="condition.user!=null and condition.user.userId!=null">
+				and upm.user_id=#{condition.user.userId}
+			</if>
+			<if test="condition.shop!=null and condition.shop.shopId!=null">
+				and upm.shop_id=#{condition.shop.shopId}
+			</if>
+			<if test="condition.product!=null and condition.product.productName!=null">
+				and p.product_name like "%"#{condition.product.productName}"%"
+			</if>
+			<if test="condition.user!=null and condition.user.userName!=null">
+				and u.user_name like "%"#{condition.user.userName}"%"
+			</if>
+			<if test="condition.createTime!=null">
+				and upm.create_time > #{condition.createTime}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insertUserProductMapCount" parameterType="UserProductMap" useGeneratedKeys="true" keyColumn="user_product_id" keyProperty="userProductId">
+		insert into
+		tb_user_product_map
+		(user_id,shop_id,product_id,point,operator_id,create_time)
+		values
+		(#{user.userId},#{shop.shopId},#{product.productId},#{point},#{operator.userId},#{createTime})
+	</insert>
+	
+</mapper>

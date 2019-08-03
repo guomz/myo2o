@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guomz.myo2o.dao.ShopCategoryDao">
+	
+	<select id="queryShopCategory" parameterType="ShopCategory" resultType="ShopCategory">
+		select 
+		shop_category_id,
+		shop_category_name,
+		shop_category_desc,
+		shop_category_img,
+		priority,
+		create_time,
+		last_edit_time,
+		parent_id
+		from tb_shop_category
+		<where>
+			<!-- 查询所有一级类别 -->
+			<if test="shopCategory==null">
+				and parent_id is null
+			</if>
+			<!-- 查询所有二级类别 -->
+			<if test="shopCategory!=null">
+				and parent_id is not null
+			</if>
+			<!-- 查询指定一级类别下的所有二级类别 -->
+			<if test="shopCategory!=null and shopCategory.parent!=null and shopCategory.parent.shopCategoryId!=null">
+				and parent_id=#{shopCategory.parent.shopCategoryId}
+			</if>
+		</where>
+		order by priority desc
+	</select>
+	
+</mapper>

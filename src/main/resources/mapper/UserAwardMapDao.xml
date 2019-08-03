@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guomz.myo2o.dao.UserAwardMapDao">
+	
+	<resultMap type="UserAwardMap" id="UserAwardResultMap">
+		<id column="user_award_id" property="userAwardId"/>
+		<result column="used_status" property="usedStatus"/>
+		<result column="point" property="point"/>
+		<result column="create_time" property="createTime"/>
+		<association property="award" column="award_id">
+			<id column="award_id" property="awardId"/>
+			<result column="award_name" property="awardName"/>
+		</association>
+		<association property="operator" column="operator_id">
+			<id column="operator_id" property="userId"/>
+			<result column="operator_name" property="userName"/>
+		</association>
+		<association property="shop" column="shop_id">
+			<id column="shop_id" property="shopId"/>
+			<result column="shop_name" property="shopName"/>
+		</association>
+		<association property="user" column="user_id">
+			<id column="user_id" property="userId"/>
+			<result column="user_name" property="userName"/>
+		</association>
+	</resultMap>
+	
+	<select id="queryUserAwardMapList" resultMap="UserAwardResultMap">
+		select
+		uam.user_award_id,
+		uam.point,
+		uam.create_time,
+		uam.used_status,
+		a.award_id,
+		a.award_name,
+		o.user_id as operator_id,
+		o.user_name as operator_name,
+		s.shop_id,
+		s.shop_name,
+		u.user_id,
+		u.user_name
+		from
+		tb_user_award_map uam,tb_award a,tb_person_info o,tb_shop s,tb_person_info u
+		<where>
+			uam.user_id=u.user_id
+			and a.award_id=uam.award_id
+			and o.user_id=uam.operator_id
+			and s.shop_id=uam.shop_id
+			<if test="condition.user!=null and condition.user.userId!=null">
+				and uam.user_id=#{condition.user.userId}
+			</if>
+			<if test="condition.shop!=null and condition.shop.shopId!=null">
+				and uam.shop_id=#{condition.shop.shopId}
+			</if>
+			<if test="condition.user!=null and condition.user.userName!=null">
+				and u.user_name like "%"#{condition.user.userName}"%"
+			</if>
+			<if test="condition.award!=null and condition.award.awardName!=null">
+				and a.award_name like "%"#{condition.award.awardName}"%"
+			</if>
+			<if test="condition.usedStatus!=null">
+				and uam.used_status=#{condition.usedStatus}
+			</if>
+		</where>
+		limit #{rowIndex},#{pageSize}
+	</select>
+	
+	<select id="queryUserAwardMapCount" resultType="int">
+		select
+		count(*)
+		from
+		tb_user_award_map uam,tb_award a,tb_person_info o,tb_shop s,tb_person_info u
+		<where>
+			uam.user_id=u.user_id
+			and a.award_id=uam.award_id
+			and o.user_id=uam.operator_id
+			and s.shop_id=uam.shop_id
+			<if test="condition.user!=null and condition.user.userId!=null">
+				and uam.user_id=#{condition.user.userId}
+			</if>
+			<if test="condition.shop!=null and condition.shop.shopId!=null">
+				and uam.shop_id=#{condition.shop.shopId}
+			</if>
+			<if test="condition.user!=null and condition.user.userName!=null">
+				and u.user_name like "%"#{condition.user.userName}"%"
+			</if>
+			<if test="condition.award!=null and condition.award.awardName!=null">
+				and a.award_name like "%"#{condition.award.awardName}"%"
+			</if>
+			<if test="condition.usedStatus!=null">
+				and uam.used_status=#{condition.usedStatus}
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryUserAwardMapById" resultMap="UserAwardResultMap" parameterType="Long">
+		select
+		uam.user_award_id,
+		uam.point,
+		uam.create_time,
+		uam.used_status,
+		a.award_id,
+		a.award_name,
+		o.user_id as operator_id,
+		o.user_name as operator_name,
+		s.shop_id,
+		s.shop_name,
+		u.user_id,
+		u.user_name
+		from
+		tb_user_award_map uam,tb_award a,tb_person_info o,tb_shop s,tb_person_info u
+		<where>
+			uam.user_id=u.user_id
+			and a.award_id=uam.award_id
+			and o.user_id=uam.operator_id
+			and s.shop_id=uam.shop_id
+			and uam.user_award_id=#{0}
+		</where>
+	</select>
+	
+	<insert id="insertUserAwardMap" parameterType="UserAwardMap">
+		insert into tb_user_award_map
+		(award_id,shop_id,user_id,operator_id,create_time,used_status,point)
+		values
+		(#{award.awardId},#{shop.shopId},#{user.userId},#{operator.userId},#{createTime},#{usedStatus},#{point})
+	</insert>
+	
+	<update id="updateUserAwardMap" parameterType="UserAwardMap">
+		update tb_user_award_map
+		set
+		used_status=#{usedStatus}
+		where
+		user_award_id=#{userAwardId}
+		and user_id=#{user.userId}
+	</update>
+	
+</mapper>

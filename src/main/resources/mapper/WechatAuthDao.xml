@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guomz.myo2o.dao.WechatAuthDao">
+	
+	<resultMap type="WechatAuth" id="WechatAuthMap">
+		<id column="wechat_auth_id" property="wechatAuthId"/>
+		<result column="open_id" property="openId"/>
+		<result column="create_time" property="createTime"/>
+		<association property="personInfo" javaType="PersonInfo" column="user_id">
+			<id column="user_id" property="userId"/>
+			<result column="user_name" property="userName"/>
+			<result column="user_type" property="userType"/>
+			<result column="gender" property="gender"/>
+			<result column="email" property="email"/>
+			<result column="profile_img" property="profileImg"/>
+			<result column="enable_status" property="enableStatus"/>
+			<result column="create_time" property="createTime"/>
+			<result column="last_edit_time" property="lastEditTime"/>
+		</association>
+	</resultMap>
+	
+	<select id="queryWechatAuthById" parameterType="String" resultMap="WechatAuthMap">
+		select
+		w.wechat_auth_id,
+		w.create_time,
+		w.open_id,
+		w.user_id,
+		p.user_name,
+		p.user_type,
+		p.gender,
+		p.email,
+		p.profile_img,
+		p.enable_status,
+		p.create_time,
+		p.last_edit_time
+		from
+		tb_wechat_auth w,tb_person_info p
+		where 
+		w.open_id=#{0} and w.user_id=p.user_id
+	</select>
+	
+	<insert id="insertWechatAuth" parameterType="WechatAuth" useGeneratedKeys="true" keyColumn="wechat_auth_id" keyProperty="wechatAuthId">
+		insert into
+		tb_wechat_auth
+		(create_time,open_id,user_id)
+		values
+		(#{createTime},#{openId},#{personInfo.userId})
+	</insert>
+	
+</mapper>

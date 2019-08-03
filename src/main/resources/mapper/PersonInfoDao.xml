@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guomz.myo2o.dao.PersonInfoDao">
+	
+	<select id="queryPersonInfoById" parameterType="Long" resultType="PersonInfo">
+		select *
+		from tb_person_info
+		where
+		user_id=#{0}
+	</select>
+	
+	<insert id="insertPersonInfo" parameterType="PersonInfo" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+		insert into tb_person_info
+		(user_id,user_name,user_type,gender,email,profile_img,create_time,last_edit_time,enable_status)
+		values
+		(#{userId},#{userName},#{userType},#{gender},#{email},#{profileImg},#{createTime},#{lastEditTime},#{enableStatus})
+	</insert>
+	
+</mapper>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guomz.myo2o.dao.ShopAuthMapDao">
+	
+	<resultMap type="ShopAuthMap" id="ShopAuthResultMap">
+		<id column="shop_auth_id" property="shopAuthId"/>
+		<result column="title" property="title"/>
+		<result column="title_flag" property="titleFlag"/>
+		<result column="enable_status" property="enableStatus"/>
+		<result column="create_time" property="createTime"/>
+		<result column="last_edit_time" property="lastEditTime"/>
+		<association property="shop" column="shop_id">
+			<id column="shop_id" property="shopId"/>
+			<result column="shop_name" property="shopName"/>
+		</association>
+		<association property="employee" column="employee_id">
+			<id column="user_id" property="userId"/>
+			<result column="user_name" property="userName"/>
+		</association>
+	</resultMap>
+	
+	<select id="queryShopAuthMapListByShopId" resultMap="ShopAuthResultMap">
+		select
+		sam.shop_auth_id,
+		sam.title,
+		sam.title_flag,
+		sam.create_time,
+		sam.last_edit_time,
+		sam.enable_status,
+		s.shop_id,
+		s.shop_name,
+		e.user_id,
+		e.user_name
+		from tb_shop_auth_map sam,tb_person_info e,tb_shop s
+		<where>
+			sam.shop_id=s.shop_id
+			and sam.employee_id=e.user_id
+			and sam.shop_id=#{shopId}
+		</where>
+		limit #{rowIndex},#{pageSize}
+	</select>
+	
+	<select id="queryShopAuthMapCount" resultType="int" parameterType="Long">
+		select
+		count(*)
+		from tb_shop_auth_map sam,tb_person_info e,tb_shop s
+		<where>
+			sam.shop_id=s.shop_id
+			and sam.employee_id=e.user_id
+			and sam.shop_id=#{shopId}
+		</where>
+	</select>
+	
+	<insert id="insertShopAuthMap" parameterType="ShopAuthMap" useGeneratedKeys="true" keyColumn="shop_auth_id" keyProperty="shopAuthId">
+		insert into tb_shop_auth_map
+		(title,title_flag,enable_status,create_time,last_edit_time,shop_id,employee_id)
+		values
+		(#{title},#{titleFlag},#{enableStatus},#{createTime},#{lastEditTime},#{shop.shopId},#{employee.userId})
+	</insert>
+	
+	<update id="updateShopAuthMap" parameterType="ShopAuthMap">
+		update tb_shop_auth_map
+		<set>
+			<if test="title!=null">
+				title=#{title},
+			</if>
+			<if test="titleFlag!=null">
+				title_flag=#{titleFlag},
+			</if>
+			<if test="enableStatus!=null">
+				enable_status=#{enableStatus},
+			</if>
+			<if test="lastEditTime!=null">
+				last_edit_time=#{lastEditTime}
+			</if>
+		</set>
+		where
+		shop_auth_id=#{shopAuthId}
+	</update>
+	
+	<delete id="deleteShopAuthMap" parameterType="Long">
+		delete from tb_shop_auth_map
+		where
+		shop_auth_id=#{0}
+	</delete>
+	
+	<select id="queryShopAuthMapById" parameterType="Long" resultMap="ShopAuthResultMap">
+		select
+		sam.shop_auth_id,
+		sam.title,
+		sam.title_flag,
+		sam.create_time,
+		sam.last_edit_time,
+		sam.enable_status,
+		s.shop_id,
+		s.shop_name,
+		e.user_id,
+		e.user_name
+		from tb_shop_auth_map sam,tb_person_info e,tb_shop s
+		<where>
+			sam.shop_id=s.shop_id
+			and sam.employee_id=e.user_id
+			and sam.shop_auth_id=#{0}
+		</where>
+	</select>
+	
+</mapper>

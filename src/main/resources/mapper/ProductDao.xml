@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guomz.myo2o.dao.ProductDao">
+
+	<resultMap type="Product" id="productMap">
+		<id column="p_product_id" property="productId"/>
+		<result column="product_name" property="productName"/>
+		<result column="product_desc" property="productDesc"/>
+		<result column="img_addr" property="imgAddr"/>
+		<result column="normal_price" property="normalPrice"/>
+		<result column="promotion_price" property="promotionPrice"/>
+		<result column="priority" property="priority"/>
+		<result column="point" property="point"/>
+		<result column="create_time" property="createTime"/>
+		<result column="last_edit_time" property="lastEditTime"/>
+		<result column="enable_status" property="enableStatus"/>
+		<association property="shop" column="shop_id" javaType="Shop">
+			<id column="shop_id" property="shopId"/>
+			<result column="shop_name" property="shopName"/>
+		</association>
+		<association property="productCategory" column="product_category_id" javaType="productCategory">
+			<id column="product_category_id"  property="productCategoryId"/>
+			<result column="product_category_name" property="productCategoryName"/>
+		</association>
+		<collection property="productImgList" ofType="ProductImg">
+			<id column="product_img_id" property="productImgId"/>
+			<result column="pm_priority" property="priority"/>
+			<result column="img_desc" property="imgDesc"/>
+			<result column="detail_addr" property="imgAddr"/>
+			<result column="create_time" property="createTime"/>
+			<result column="product_id" property="productId"/>
+		</collection>
+	</resultMap>
+
+	<insert id="insertProduct" parameterType="Product" useGeneratedKeys="true" keyColumn="product_id" keyProperty="productId">
+		insert into
+		tb_product(product_name,product_desc,img_addr,normal_price,promotion_price,priority,point,create_time,last_edit_time,enable_status,product_category_id,shop_id)
+		values
+		(#{productName},#{productDesc},#{imgAddr},#{normalPrice},#{promotionPrice},#{priority},#{point},#{createTime},#{lastEditTime},#{enableStatus},#{productCategory.productCategoryId},#{shop.shopId})
+	</insert>
+	
+	<select id="queryProductById" parameterType="Long" resultMap="productMap">
+		select
+		p.product_id as p_product_id,
+		p.product_name,
+		p.product_desc,
+		p.img_addr,
+		p.normal_price,
+		p.promotion_price,
+		p.priority,
+		p.point,
+		p.create_time,
+		p.last_edit_time,
+		p.enable_status,
+		p.product_category_id,
+		p.shop_id,
+		pm.product_img_id,
+		pm.product_id,
+		pm.img_addr as detail_addr,
+		pm.create_time,
+		pm.priority as pm_priority
+		from 
+		tb_product p
+		left join 
+		tb_product_img pm
+		on p.product_id=pm.product_id
+		where
+		p.product_id=#{productId}
+		order by
+		pm.priority desc
+	</select>
+	
+	<update id="updateProduct" parameterType="Product">
+		update tb_product
+		<set>
+			<if test="productName!=null">product_name=#{productName},</if>
+			<if test="productDesc!=null">product_desc=#{productDesc},</if>
+			<if test="imgAddr!=null">img_addr=#{imgAddr},</if>
+			<if test="normalPrice!=null">normal_price=#{normalPrice},</if>
+			<if test="promotionPrice!=null">promotion_price=#{promotionPrice},</if>
+			<if test="priority!=null">priority=#{priority},</if>
+			<if test="point!=null">point=#{point},</if>
+			<if test="lastEditTime!=null">last_edit_time=#{lastEditTime},</if>
+			<if test="enableStatus!=null">enable_status=#{enableStatus},</if>
+			<if test="productCategory!=null and productCategory.productCategoryId!=null">product_category_id=#{productCategory.productCategoryId}</if>
+		</set>
+		where
+		product_id=#{productId}
+	</update>
+	
+	<select id="queryProductList" parameterType="Product" resultMap="productMap">
+		select
+		p.product_id as p_product_id,
+		p.product_name,
+		p.product_desc,
+		p.img_addr,
+		p.normal_price,
+		p.promotion_price,
+		p.priority,
+		p.point,
+		p.create_time,
+		p.last_edit_time,
+		p.enable_status,
+		p.product_category_id,
+		p.shop_id,
+		pm.product_img_id,
+		pm.product_id,
+		pm.img_addr as detail_addr,
+		pm.create_time,
+		pm.priority as pm_priority
+		from 
+		tb_product p
+		left join 
+		tb_product_img pm
+		on p.product_id=pm.product_id
+		<where>
+			<if test="product.productName!=null">and p.product_name like "%"#{product.productName}"%"</if>
+			<if test="product.enableStatus!=null">and p.enable_staus=#{product.enableStatus}</if>
+			<if test="product.productCategory!=null and product.productCategory.productCategoryId!=null">and p.product_category_id=#{product.productCategory.productCategoryId}</if>
+			<if test="product.shop!=null and product.shop.shopId!=null">and p.shop_id=#{product.shop.shopId}</if>
+		</where>
+		order by p.priority desc
+		limit #{rowIndex},#{pageSize}
+	</select>
+	
+	<select id="queryProductCount" parameterType="Product" resultType="int">
+		select count(1)
+		from tb_product
+		<where>
+			<if test="productName!=null">and product_name like "%"#{productName}"%"</if>
+			<if test="enableStatus!=null">and enable_staus=#{enableStatus}</if>
+			<if test="productCategory!=null and productCategory.productCategoryId!=null">and product_category_id=#{productCategory.productCategoryId}</if>
+			<if test="shop!=null and shop.shopId!=null">and shop_id=#{shop.shopId}</if>
+		</where>
+	</select>
+	
+	<update id="updateProductCategoryToNull" parameterType="Long">
+		update tb_product
+		set product_category_id=null
+		where 
+		product_category_id=#{productCategoryId}
+	</update>
+
+</mapper>
